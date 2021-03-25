@@ -4,6 +4,12 @@ import { Manager } from "socket.io-client";
 import "./App.css";
 const ENDPOINT = "http://localhost:3000";
 
+const objectToQuery = (object) => {
+  return Object.keys(object)
+    .map((key) => key + "=" + object[key])
+    .join("&");
+};
+
 function App() {
   const socket = useRef();
 
@@ -33,6 +39,13 @@ function App() {
 
     socket.current.on("update", (data) => {
       console.log(data);
+      fetch(`${ENDPOINT}${data.path}?${objectToQuery(data.query)}`, {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => console.log(data));
     });
 
     socket.current.on("error", (error) => {
